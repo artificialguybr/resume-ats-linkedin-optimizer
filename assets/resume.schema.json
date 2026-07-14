@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ATS-Safe Resume",
+  "description": "Structured resume the LLM fills; scripts/resume_tools.py renders it to a single-column, ATS-safe .docx. Content only — layout is owned by the renderer.",
+  "type": "object",
+  "required": ["basics", "experience"],
+  "additionalProperties": false,
+  "properties": {
+    "basics": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "headline": { "type": "string", "description": "Optional target-role line under the name." },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "location": { "type": "string", "description": "City, State/Country. No full street address." },
+        "linkedin": { "type": "string", "description": "Plain-text URL." },
+        "github": { "type": "string" },
+        "website": { "type": "string" }
+      }
+    },
+    "summary": {
+      "type": "string",
+      "description": "Professional summary (>=1-2 yrs exp) or objective (new grad/career-changer). 3-5 lines."
+    },
+    "experience": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title", "company", "start", "bullets"],
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string" },
+          "company": { "type": "string" },
+          "location": { "type": "string" },
+          "start": { "type": "string", "description": "Month Year, e.g. 'January 2020'." },
+          "end": { "type": "string", "description": "Month Year or 'Present'." },
+          "bullets": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Action verb + what + quantified impact + how. Recent role 5-7; older 2-3."
+          }
+        }
+      }
+    },
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["institution"],
+        "additionalProperties": false,
+        "properties": {
+          "degree": { "type": "string" },
+          "field": { "type": "string" },
+          "institution": { "type": "string" },
+          "location": { "type": "string" },
+          "start": { "type": "string" },
+          "end": { "type": "string" },
+          "details": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "description": "Grouped skills. Categories like Core, Technical, Tools, Methods, Domains.",
+      "items": {
+        "type": "object",
+        "required": ["category", "items"],
+        "additionalProperties": false,
+        "properties": {
+          "category": { "type": "string" },
+          "items": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "link": { "type": "string" },
+          "bullets": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "certifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "issuer": { "type": "string" },
+          "year": { "type": "string" }
+        }
+      }
+    },
+    "awards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "issuer": { "type": "string" },
+          "year": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+# scratch / working files (dogfooding, local tests)
+scratch_*
+*.docx
+!assets/*.docx
+*.pdf
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/

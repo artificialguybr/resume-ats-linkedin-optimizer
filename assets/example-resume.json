@@ -1,0 +1,58 @@
+{
+  "basics": {
+    "name": "Jordan Rivera",
+    "headline": "Senior Data Engineer",
+    "email": "jordan.rivera@email.com",
+    "phone": "(555) 214-7788",
+    "location": "Austin, TX",
+    "linkedin": "linkedin.com/in/jordan-rivera",
+    "github": "github.com/jrivera"
+  },
+  "summary": "Data engineer with 7 years building batch and streaming pipelines in fintech. Cut a core ETL runtime 68% and shipped a data platform serving 400+ internal analysts. Seeking a senior role owning data infrastructure at scale.",
+  "experience": [
+    {
+      "title": "Data Engineer",
+      "company": "Northwind Payments",
+      "location": "Austin, TX",
+      "start": "March 2021",
+      "end": "Present",
+      "bullets": [
+        "Cut the nightly transaction ETL runtime from 5 hours to 95 minutes (68%) by rewriting the pipeline in Spark and partitioning by merchant, unblocking morning reporting for 400+ analysts.",
+        "Built a streaming fraud-signal pipeline (Kafka, Flink) processing 12M events/day at sub-second latency, feeding the risk team's real-time scoring model.",
+        "Reduced cloud data spend 32% ($410K/year) by introducing tiered storage and killing 60+ unused nightly jobs.",
+        "Led migration of 240 legacy SQL jobs to dbt, cutting model build time 40% and giving analysts self-serve lineage.",
+        "Mentored 3 junior engineers; introduced code review and CI for data models, dropping production data incidents 55%."
+      ]
+    },
+    {
+      "title": "Analytics Engineer",
+      "company": "BrightCart",
+      "location": "Remote",
+      "start": "June 2018",
+      "end": "February 2021",
+      "bullets": [
+        "Designed the company's first warehouse (Snowflake) consolidating 9 source systems, becoming the single source of truth for 50+ stakeholders.",
+        "Automated weekly executive reporting, saving the analytics team ~15 hours/week.",
+        "Built 30+ dbt models powering the growth team's self-serve dashboards."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "B.S.",
+      "field": "Computer Science",
+      "institution": "University of Texas at Austin",
+      "location": "Austin, TX",
+      "end": "2018"
+    }
+  ],
+  "skills": [
+    { "category": "Technical", "items": ["Python", "SQL", "Spark", "Apache Kafka", "Apache Flink"] },
+    { "category": "Tools", "items": ["dbt", "Snowflake", "Airflow", "AWS", "Terraform"] },
+    { "category": "Methods", "items": ["Data modeling", "Streaming/real-time pipelines", "CI/CD for data"] },
+    { "category": "Domains", "items": ["Fintech", "Payments", "Fraud detection"] }
+  ],
+  "certifications": [
+    { "name": "AWS Certified Data Analytics – Specialty", "issuer": "Amazon Web Services", "year": "2022" }
+  ]
+}
