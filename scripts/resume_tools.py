@@ -55,6 +55,8 @@ def resume_text(resume: dict) -> str:
         parts += proj.get("bullets", [])
     for cert in resume.get("certifications", []):
         parts += [cert.get("name", ""), cert.get("issuer", "")]
+    for pub in resume.get("publications", []):
+        parts += [pub.get("name", ""), pub.get("venue", "")]
     return "\n".join(p for p in parts if p).lower()
 
 
@@ -509,6 +511,20 @@ def _render_docx(resume: dict, out: str) -> int:
             p.paragraph_format.space_after = Pt(1)
             p.add_run(line)
 
+    # --- publications ---
+    if resume.get("publications"):
+        heading("Publications")
+        for pub in resume["publications"]:
+            line = pub.get("name", "")
+            extra = ", ".join(x for x in [pub.get("venue", ""), pub.get("year", "")] if x)
+            if extra:
+                line += f" — {extra}"
+            if pub.get("link"):
+                line += f" ({pub['link']})"
+            p = doc.add_paragraph()
+            p.paragraph_format.space_after = Pt(1)
+            p.add_run(line)
+
     # --- awards ---
     if resume.get("awards"):
         heading("Awards")
@@ -546,8 +562,8 @@ def _render_pdf(resume: dict, out: str) -> int:
     name_s = ParagraphStyle("name", parent=body, fontName="Helvetica-Bold", fontSize=19, alignment=TA_CENTER, leading=22, spaceAfter=1)
     head_line = ParagraphStyle("headline", parent=body, fontSize=11, alignment=TA_CENTER, spaceAfter=1)
     contact = ParagraphStyle("contact", parent=body, fontSize=9, alignment=TA_CENTER, textColor=HexColor("#333333"), spaceAfter=6)
-    section = ParagraphStyle("section", parent=body, fontName="Helvetica-Bold", fontSize=11.5, spaceBefore=7, spaceAfter=2, textColor=HexColor("#1a1a1a"))
-    role = ParagraphStyle("role", parent=body, fontName="Helvetica-Bold", fontSize=10.5, spaceBefore=3, spaceAfter=0)
+    section = ParagraphStyle("section", parent=body, fontName="Helvetica-Bold", fontSize=11.5, spaceBefore=6, spaceAfter=2, textColor=HexColor("#1a1a1a"))
+    role = ParagraphStyle("role", parent=body, fontName="Helvetica-Bold", fontSize=10.5, spaceBefore=2, spaceAfter=0)
     meta = ParagraphStyle("meta", parent=body, fontName="Helvetica-Oblique", fontSize=9, textColor=HexColor("#444444"), spaceAfter=2)
     bullet_s = ParagraphStyle("bullet", parent=body, leftIndent=12, spaceAfter=1.5, leading=12.5)
 
@@ -588,7 +604,7 @@ def _render_pdf(resume: dict, out: str) -> int:
             if m:
                 flow.append(Paragraph(m, meta))
             bullets(exp.get("bullets", []))
-            flow.append(Spacer(1, 2))
+            flow.append(Spacer(1, 1))
 
     if resume.get("projects"):
         heading("Projects")
@@ -598,7 +614,7 @@ def _render_pdf(resume: dict, out: str) -> int:
             if p.get("description"):
                 flow.append(Paragraph(esc(p["description"]), body))
             bullets(p.get("bullets", []))
-            flow.append(Spacer(1, 2))
+            flow.append(Spacer(1, 1))
 
     if resume.get("skills"):
         heading("Skills")
@@ -621,6 +637,15 @@ def _render_pdf(resume: dict, out: str) -> int:
             extra = ", ".join(x for x in [c.get("issuer", ""), c.get("year", "")] if x)
             flow.append(Paragraph(esc(c.get("name", "")) + (f" &mdash; {esc(extra)}" if extra else ""), body))
 
+    if resume.get("publications"):
+        heading("Publications")
+        for pub in resume["publications"]:
+            extra = ", ".join(x for x in [pub.get("venue", ""), pub.get("year", "")] if x)
+            line = esc(pub.get("name", "")) + (f" &mdash; {esc(extra)}" if extra else "")
+            if pub.get("link"):
+                line += f" ({esc(pub['link'])})"
+            flow.append(Paragraph(line, body))
+
     if resume.get("awards"):
         heading("Awards")
         for a in resume["awards"]:
@@ -630,7 +655,7 @@ def _render_pdf(resume: dict, out: str) -> int:
     doc = SimpleDocTemplate(
         out, pagesize=LETTER,
         leftMargin=0.9 * inch, rightMargin=0.9 * inch,
-        topMargin=0.7 * inch, bottomMargin=0.6 * inch,
+        topMargin=0.62 * inch, bottomMargin=0.5 * inch,
         title=f"{b.get('name','')} — Resume", author=b.get("name", ""),
     )
     doc.build(flow)

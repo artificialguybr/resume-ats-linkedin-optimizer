@@ -8,7 +8,8 @@ description: >-
   review a resume or CV; tailor a resume to a specific job description; run an ATS
   check or audit; write or strengthen achievement bullet points; quantify
   accomplishments; optimize a LinkedIn headline, About, skills, or experience;
-  or generally maximize their chances of getting hired. Governing rule:
+  write a tailored cover letter; or generally maximize their chances of getting
+  hired. Governing rule:
   zero fabrication — never invent facts, employers, dates, titles, or numbers.
 license: MIT
 ---
@@ -86,6 +87,7 @@ Detect which the user wants (ask if unclear) and follow the phases below.
 | **Audit** | "check / score my resume", "is this ATS-friendly" | 0,3,4,6 (report only) |
 | **LinkedIn** | "optimize my LinkedIn" | 0,1,7 |
 | **Apply/skip** | "should I apply to this?" | 0,4 → `references/03-keywords-and-tailoring.md` gate |
+| **Cover letter** | "write a cover letter" | 0,4 → `references/08-cover-letters.md` |
 
 ## Workflow
 
@@ -190,6 +192,7 @@ Load references on demand as you reach the phase that needs them.
 - `references/06-scoring-and-evaluation.md` — rubric, truthfulness invariants,
   skim test.
 - `references/07-myths-and-truth.md` — myths to stop repeating; what's actually true.
+- `references/08-cover-letters.md` — when to write one, structure, rules, template.
 - `assets/master-profile-template.md`, `assets/resume.schema.json`,
   `assets/example-resume.json`, `assets/action-verbs.md`,
   `assets/metric-proxies.md`, `assets/ai-slop-blacklist.md`.

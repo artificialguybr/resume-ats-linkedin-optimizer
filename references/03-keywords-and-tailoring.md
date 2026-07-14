@@ -89,6 +89,22 @@ Overall = required_coverage * 0.7 + preferred_coverage * 0.3
 Also scan the JD for **red flags** (unrealistic requirement stacks, vague scope,
 churn signals) and surface them so the user decides with eyes open.
 
+## Knockout / screening questions (the real rejection mechanism)
+
+ATS rarely auto-reject on the resume — but application **knockout questions** do.
+These are the "Do you have X years of Y?", "Are you authorized to work in…?",
+"What's your salary expectation?" gates. Coach the user to:
+- **Answer knockouts honestly but strategically.** A hard requirement you don't
+  meet (work authorization, a required license) is a genuine gate — don't waste
+  the application. A soft "years of experience" question: answer truthfully; if
+  you're one year short but clearly qualified, apply anyway (many are filters,
+  not walls).
+- **Salary questions:** give a researched range, not a single number, when forced.
+- **Never lie on a knockout** — it surfaces in screening and burns the
+  relationship.
+- Treat a wall of invasive knockouts + a poor fit as a signal to spend the
+  effort elsewhere (see the apply/skip gate).
+
 ## Multi-job batching
 
 With a Master Profile, tailoring N jobs = N selections from one truthful store.

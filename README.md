@@ -48,6 +48,7 @@ what's actually true:
 | Check if it's ATS-friendly | *"Audit my resume for ATS."* |
 | Write/quantify achievement bullets | *"Turn these duties into quantified bullets."* |
 | Optimize your LinkedIn profile | *"Optimize my LinkedIn headline / About / skills."* |
+| Write a tailored cover letter | *"Write a cover letter for this job."* |
 | Decide whether a job is worth applying to | *"Should I apply to this role?"* |
 
 ## Install
@@ -125,6 +126,7 @@ references/
   05-master-profile.md       ← the single source of truth + visibility system
   06-scoring-and-evaluation.md ← rubric; truthfulness invariants; skim test
   07-myths-and-truth.md      ← ATS myths debunked
+  08-cover-letters.md        ← when to write one, structure, rules, template
 assets/                      ← templates, JSON schema, verb bank, metric proxies, slop blacklist
 scripts/                     ← resume_tools.py (render / validate / coverage / deslop)
 ```

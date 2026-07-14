@@ -102,6 +102,21 @@
         }
       }
     },
+    "publications": {
+      "type": "array",
+      "description": "Papers, articles, patents. Strong signal for researchers/academics.",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "venue": { "type": "string", "description": "Journal/conference/arXiv/publisher." },
+          "year": { "type": "string" },
+          "link": { "type": "string" }
+        }
+      }
+    },
     "awards": {
       "type": "array",
       "items": {
