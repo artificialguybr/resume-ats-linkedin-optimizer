@@ -2,13 +2,14 @@
 """resume_tools.py — deterministic helpers for the resume-ats-linkedin-optimizer skill.
 
 Subcommands:
-  render     JSON resume  -> single-column, ATS-safe .docx   (needs python-docx)
+  render     JSON resume  -> single-column, ATS-safe .docx or .pdf
   validate   resume JSON vs a source (master profile / original) -> truthfulness invariants
   coverage   resume JSON + job-description text -> labeled keyword-coverage ESTIMATE
   deslop     resume JSON -> flag AI-tells / filler / inflated verbs
 
 The model owns the words; this code owns layout, checks, and honest scoring.
-validate/coverage/deslop use only the standard library. render needs python-docx.
+validate/coverage/deslop use only the standard library. render needs
+python-docx (for .docx) or reportlab (for .pdf).
 
   python scripts/resume_tools.py <command> --help
 """
@@ -364,16 +365,15 @@ def cmd_deslop(args) -> int:
 # render — JSON -> ATS-safe .docx
 # ---------------------------------------------------------------------------
 
-def cmd_render(args) -> int:
+def _render_docx(resume: dict, out: str) -> int:
     try:
         from docx import Document
         from docx.shared import Pt, Inches, RGBColor
         from docx.enum.text import WD_ALIGN_PARAGRAPH
         from docx.oxml.ns import qn
     except ImportError:
-        sys.exit("error: python-docx is required for render. Install:  pip install python-docx")
+        sys.exit("error: python-docx is required for .docx render. Install:  pip install python-docx")
 
-    resume = load_json(args.resume)
     b = resume.get("basics", {})
 
     doc = Document()
@@ -519,10 +519,133 @@ def cmd_render(args) -> int:
                 line += f" — {extra}"
             doc.add_paragraph(line)
 
-    out = args.out or "resume.docx"
     doc.save(out)
-    print(f"wrote {out}  (single-column, ATS-safe). Export to PDF for submission; keep .docx for portals that request it.")
+    print(f"wrote {out}  (single-column, ATS-safe .docx). Keep it for portals that request Word.")
     return 0
+
+
+def _render_pdf(resume: dict, out: str) -> int:
+    """Text-based, single-column, ATS-safe PDF via reportlab (selectable text = parseable)."""
+    try:
+        from reportlab.lib.pagesizes import LETTER
+        from reportlab.lib.units import inch
+        from reportlab.lib.enums import TA_CENTER
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.platypus import (
+            SimpleDocTemplate, Paragraph, Spacer, HRFlowable, ListFlowable, ListItem,
+        )
+        from reportlab.lib.colors import HexColor
+    except ImportError:
+        sys.exit("error: reportlab is required for .pdf render. Install:  pip install reportlab")
+
+    from xml.sax.saxutils import escape
+
+    b = resume.get("basics", {})
+    styles = getSampleStyleSheet()
+    body = ParagraphStyle("body", parent=styles["Normal"], fontName="Helvetica", fontSize=10, leading=12.5, spaceAfter=3)
+    name_s = ParagraphStyle("name", parent=body, fontName="Helvetica-Bold", fontSize=19, alignment=TA_CENTER, leading=22, spaceAfter=1)
+    head_line = ParagraphStyle("headline", parent=body, fontSize=11, alignment=TA_CENTER, spaceAfter=1)
+    contact = ParagraphStyle("contact", parent=body, fontSize=9, alignment=TA_CENTER, textColor=HexColor("#333333"), spaceAfter=6)
+    section = ParagraphStyle("section", parent=body, fontName="Helvetica-Bold", fontSize=11.5, spaceBefore=7, spaceAfter=2, textColor=HexColor("#1a1a1a"))
+    role = ParagraphStyle("role", parent=body, fontName="Helvetica-Bold", fontSize=10.5, spaceBefore=3, spaceAfter=0)
+    meta = ParagraphStyle("meta", parent=body, fontName="Helvetica-Oblique", fontSize=9, textColor=HexColor("#444444"), spaceAfter=2)
+    bullet_s = ParagraphStyle("bullet", parent=body, leftIndent=12, spaceAfter=1.5, leading=12.5)
+
+    def esc(s: str) -> str:
+        return escape(s or "")
+
+    flow = []
+
+    def heading(text: str):
+        flow.append(Paragraph(esc(text).upper(), section))
+        flow.append(HRFlowable(width="100%", thickness=0.6, color=HexColor("#999999"), spaceBefore=1, spaceAfter=4))
+
+    def bullets(items):
+        if not items:
+            return
+        flow.append(ListFlowable(
+            [ListItem(Paragraph(esc(x), bullet_s), leftIndent=10, value="•") for x in items],
+            bulletType="bullet", start="•", leftIndent=12, bulletFontSize=8,
+        ))
+
+    # header (contact in body, never a page header)
+    flow.append(Paragraph(esc(b.get("name", "")), name_s))
+    if b.get("headline"):
+        flow.append(Paragraph(esc(b["headline"]), head_line))
+    cbits = [b.get(k) for k in ["phone", "email", "location", "linkedin", "github", "website"] if b.get(k)]
+    if cbits:
+        flow.append(Paragraph("  |  ".join(esc(x) for x in cbits), contact))
+
+    if resume.get("summary"):
+        heading("Summary")
+        flow.append(Paragraph(esc(resume["summary"]), body))
+
+    if resume.get("experience"):
+        heading("Work Experience")
+        for exp in resume["experience"]:
+            flow.append(Paragraph(f"{esc(exp.get('title',''))} &mdash; {esc(exp.get('company',''))}", role))
+            m = " | ".join(x for x in [esc(exp.get("location", "")), f"{esc(exp.get('start',''))} – {esc(exp.get('end',''))}".strip(" –")] if x)
+            if m:
+                flow.append(Paragraph(m, meta))
+            bullets(exp.get("bullets", []))
+            flow.append(Spacer(1, 2))
+
+    if resume.get("projects"):
+        heading("Projects")
+        for p in resume["projects"]:
+            title = esc(p.get("name", "")) + (f" ({esc(p['link'])})" if p.get("link") else "")
+            flow.append(Paragraph(title, role))
+            if p.get("description"):
+                flow.append(Paragraph(esc(p["description"]), body))
+            bullets(p.get("bullets", []))
+            flow.append(Spacer(1, 2))
+
+    if resume.get("skills"):
+        heading("Skills")
+        for g in resume["skills"]:
+            flow.append(Paragraph(f"<b>{esc(g.get('category',''))}:</b> {esc(', '.join(g.get('items', [])))}", body))
+
+    if resume.get("education"):
+        heading("Education")
+        for e in resume["education"]:
+            deg = ", ".join(x for x in [e.get("degree", ""), e.get("field", "")] if x)
+            flow.append(Paragraph(f"{esc(deg)} &mdash; {esc(e.get('institution',''))}".strip(" &mdash;"), role))
+            tail = " | ".join(x for x in [esc(e.get("location", "")), f"{esc(e.get('start',''))} – {esc(e.get('end',''))}".strip(" –")] if x)
+            if tail:
+                flow.append(Paragraph(tail, meta))
+            bullets(e.get("details", []))
+
+    if resume.get("certifications"):
+        heading("Certifications")
+        for c in resume["certifications"]:
+            extra = ", ".join(x for x in [c.get("issuer", ""), c.get("year", "")] if x)
+            flow.append(Paragraph(esc(c.get("name", "")) + (f" &mdash; {esc(extra)}" if extra else ""), body))
+
+    if resume.get("awards"):
+        heading("Awards")
+        for a in resume["awards"]:
+            extra = ", ".join(x for x in [a.get("issuer", ""), a.get("year", "")] if x)
+            flow.append(Paragraph(esc(a.get("name", "")) + (f" &mdash; {esc(extra)}" if extra else ""), body))
+
+    doc = SimpleDocTemplate(
+        out, pagesize=LETTER,
+        leftMargin=0.9 * inch, rightMargin=0.9 * inch,
+        topMargin=0.7 * inch, bottomMargin=0.6 * inch,
+        title=f"{b.get('name','')} — Resume", author=b.get("name", ""),
+    )
+    doc.build(flow)
+    print(f"wrote {out}  (single-column, text-based, ATS-safe PDF).")
+    return 0
+
+
+def cmd_render(args) -> int:
+    resume = load_json(args.resume)
+    fmt = (args.format or (Path(args.out).suffix.lstrip(".") if args.out else "docx")).lower()
+    if fmt == "pdf":
+        return _render_pdf(resume, args.out or "resume.pdf")
+    if fmt in ("docx", "doc", ""):
+        return _render_docx(resume, args.out or "resume.docx")
+    sys.exit(f"error: unknown format '{fmt}' (use docx or pdf)")
 
 
 # ---------------------------------------------------------------------------
@@ -533,9 +656,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p_render = sub.add_parser("render", help="JSON resume -> ATS-safe .docx (needs python-docx)")
+    p_render = sub.add_parser("render", help="JSON resume -> ATS-safe .docx or .pdf")
     p_render.add_argument("--resume", required=True)
-    p_render.add_argument("--out", default=None)
+    p_render.add_argument("--out", default=None, help="output path; format inferred from extension")
+    p_render.add_argument("--format", choices=["docx", "pdf"], default=None, help="override output format (needs python-docx / reportlab)")
     p_render.set_defaults(func=cmd_render)
 
     p_val = sub.add_parser("validate", help="truthfulness invariants (resume vs source)")

@@ -1,3 +1,5 @@
-# Only needed for the `render` subcommand (JSON -> ATS-safe .docx).
+# Only needed for the `render` subcommand.
+#   python-docx -> .docx output    reportlab -> .pdf output
 # validate / coverage / deslop use the Python standard library only.
 python-docx>=1.1.0
+reportlab>=4.0.0

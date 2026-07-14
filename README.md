@@ -70,10 +70,11 @@ The skill is plain Markdown. Add `SKILL.md` (and the `references/`, `assets/`,
 instruction. It's framework-agnostic.
 
 ### Optional: the render tool
-Rendering a JSON resume to an ATS-safe `.docx` needs one dependency:
+Rendering a JSON resume to an ATS-safe `.docx` or `.pdf` needs one dependency
+each:
 
 ```bash
-pip install -r scripts/requirements.txt   # python-docx
+pip install -r scripts/requirements.txt   # python-docx (.docx) + reportlab (.pdf)
 ```
 
 The other tools (`validate`, `coverage`, `deslop`) are pure standard library.
@@ -95,7 +96,8 @@ tailoring both fast and truthful.
 ## Bundled tools (`scripts/resume_tools.py`)
 
 ```bash
-# Render structured JSON → single-column, ATS-safe .docx
+# Render structured JSON → single-column, ATS-safe .docx or .pdf (format inferred from extension)
+python scripts/resume_tools.py render   --resume resume.json --out resume.pdf
 python scripts/resume_tools.py render   --resume resume.json --out resume.docx
 
 # Truthfulness invariants: no fabricated employer/date, identity untouched, nothing dropped

@@ -146,10 +146,11 @@ reach that phase* — don't front-load everything.
 
 ### Phase 5 — Render
 - Prefer the **LLM-writes-JSON, code-renders-doc** pattern: put content in
-  `assets/resume.schema.json` shape, then `python scripts/resume_tools.py render`
-  produces a clean, single-column, ATS-safe `.docx`. This keeps layout
-  deterministic and parseable. PDF: export the `.docx` (or via LibreOffice) —
-  text-based PDF is the safe default; keep `.docx` for portals that request it.
+  `assets/resume.schema.json` shape, then `python scripts/resume_tools.py render
+  --resume resume.json --out resume.pdf` (or `.docx`) produces a clean,
+  single-column, ATS-safe file with selectable text. This keeps layout
+  deterministic and parseable. Text-based PDF is the safe default for
+  submission; keep `.docx` for portals that request Word.
 - File name: `Firstname-Lastname-Resume.pdf`.
 - **Exit when:** a rendered file exists and its text is selectable/copyable.
 
